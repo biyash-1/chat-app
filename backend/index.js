@@ -1,21 +1,27 @@
-import express from 'express'
+import express from 'express';
 const app = express();
-import dotenv from "dotenv"
-import connectdb from "./dbcon.js"
-import userRoute from "./routes/userRoute.js"
-
+import dotenv from "dotenv";
+import connectdb from "./dbcon.js";
+import userRoute from "./routes/userRoute.js";
+import cors from "cors"
 // Middleware
-
 dotenv.config();
-connectdb()
-app.use(express.json()); // Parse incoming JSON requests
+connectdb();
+app.use(express.json());
+
+app.use(cors({
+  origin: 'http://localhost:3000'
+}))
+// Parse incoming JSON requests
 
 // Basic route
 app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 
-api.use("/api/user",userRoute)
+// Corrected `app.use` for routing
+app.use("/api/user", userRoute);
+
 // Start server
 const PORT = 3001; // Define the port
 app.listen(PORT, () => {

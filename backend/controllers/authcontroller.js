@@ -1,12 +1,12 @@
-import User from "..models/userModel"
+import User from "../model/userModel.js"
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
  // Ensure you set this in your .env file
 
-const signup = async (req, res) => {
+const signupUser = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password,imageUrl } = req.body;
 
        
         if (!username || !email || !password) {
@@ -27,7 +27,8 @@ const signup = async (req, res) => {
         const newUser = new User({
             username,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            profilePicture:imageUrl
         });
 
         // Save the new user to the database
@@ -37,7 +38,7 @@ const signup = async (req, res) => {
         const token = jwt.sign(
             { id: newUser._id, username: newUser.username }, 
             process.env.JWT_SECRET, 
-            { expiresIn: "1h" } // Token expiration (optional)
+            { expiresIn: "1h" } 
         );
 
         res.status(201).json({
@@ -55,4 +56,6 @@ const signup = async (req, res) => {
     }
 };
 
-export default signup;
+
+
+export default signupUser;
