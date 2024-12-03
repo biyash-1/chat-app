@@ -3,6 +3,7 @@ const app = express();
 import dotenv from "dotenv";
 import connectdb from "./dbcon.js";
 import userRoute from "./routes/userRoute.js";
+import messageRoute from "./routes/messageRoute.js";
 import cors from "cors"
 // Middleware
 dotenv.config();
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 
 // Corrected `app.use` for routing
 app.use("/api/user", userRoute);
+app.use("/api/message", messageRoute);
 
 // Start server
 const PORT = 3001; // Define the port

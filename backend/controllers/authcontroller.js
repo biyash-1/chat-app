@@ -129,8 +129,6 @@ const logoutUser = async (req, res) => {
     }
 };
 
-const getsidebarsUser = aysnc (req,res) {
-    
-}
+
 
 export default { signupUser, loginUser, logoutUser };
