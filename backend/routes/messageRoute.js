@@ -8,7 +8,7 @@ import getUsersForSidebar from "../controllers/messageController.js";
 router.get("/getUsers", authenticate, getUsersForSidebar);
 
 router.get("/:id", authenticate, getMessages);
-router.post("/sendMessage", sendMessage);
+
 
 export default sendMessage;
 
