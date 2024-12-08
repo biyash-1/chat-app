@@ -128,6 +128,16 @@ import jwt from "jsonwebtoken";
         res.status(500).json({ message: "Server error" });
     }
 };
+export const checkAuth = async (req, res) => {
+  try{
+        const token = req.cookies.token;
+
+  }
+  catch(err){
+
+  }
+
+}
 
 
 
