@@ -1,8 +1,17 @@
 
 import Message from "../model/messageModel.js";
 import User from "../model/userModel.js";
+import {v2 as cloudinary} from "cloudinary";
 
-export const getUsersForSidebar = async (req, res) => {
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+
+
+export  const getUsersForSidebar = async (req, res) => {
 
     try{
         const loggedInUser = req.user._id;
@@ -29,3 +38,29 @@ export const getMessages = async (req, res) => {
         res.status(500).json({message:"Internal Server Error"});
     }
 };
+export const sendMessage = async (req,res) =>{
+  try{
+    const {text,image} = req.body;
+    const {id:receiverId} = req.params;
+    const senderId = req.user._id;
+
+    let imageUrl;
+    if(image){
+      const uploadResponse = await cloudinary.uploader.upload(image);
+      imageUrl = uploadResponse.url;
+    }
+    const newMessage = new Message({
+      text,
+      senderID:senderId,
+      receiverId,
+      imageUrl
+    });
+    await newMessage.save();
+    res.status(201).json({message:"Message sent successfully"});
+  }
+  catch(err){
+    res.status(500).json({message:"Internal Server Error"});
+  }
+}
+
+export default getMessages;

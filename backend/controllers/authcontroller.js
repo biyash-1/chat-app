@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 // Signup User
-const signupUser = async (req, res) => {
+ export const signupUser = async (req, res) => {
     try {
         const { username, email, password, imageUrl } = req.body;
 
@@ -62,7 +62,7 @@ const signupUser = async (req, res) => {
 };
 
 // Login User
-const loginUser = async (req, res) => {
+ export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -112,9 +112,9 @@ const loginUser = async (req, res) => {
 };
 
 // Logout User
-const logoutUser = async (req, res) => {
+ export const logoutUser = async (req, res) => {
     try {
-        // Clear the JWT cookie
+       
         res.cookie("token", "", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
