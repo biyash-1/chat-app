@@ -129,15 +129,20 @@ import jwt from "jsonwebtoken";
     }
 };
 export const checkAuth = async (req, res) => {
-  try{
+    try {
         const token = req.cookies.token;
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
 
-  }
-  catch(err){
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
+        res.status(200).json({ message: "Authenticated", user: verified });
+    } catch (error) {
+        console.error(error);
+        res.status(401).json({ message: "Invalid or expired token" });
+    }
+};
 
-  }
-
-}
 
 
 
