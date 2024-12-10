@@ -20,7 +20,7 @@ export const withAuth = (Component: React.ComponentType<any>) => {
       }
     }, [authUser, router]);
 
-    // Show a loading indicator while authentication is being checked
+   
     if (authUser === null) {
       return <div>Loading...</div>;
     }
