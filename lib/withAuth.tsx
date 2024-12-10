@@ -1,25 +1,32 @@
-// src/hoc/withAuth.tsx
-import React, { ReactNode, useEffect } from "react";
-import { useAuthStore } from "../app/store/useAuthStore"; // Adjust the import path if needed
-import { useRouter } from "next/router";
+"use client";
+import { useEffect } from "react";
+import { useAuthStore } from "../app/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
-// This is the HOC that checks if the user is authenticated
-export const withAuth = (Component: React.ComponentType<any>) => { // Type the Component prop correctly
+export const withAuth = (Component: React.ComponentType<any>) => {
   const Wrapper = (props: any) => {
-    const { authUser, checkAuth } = useAuthStore(); // Get auth state from Zustand
+    const { authUser, checkAuth } = useAuthStore();
     const router = useRouter();
 
+    // Run the authentication check when the component mounts
     useEffect(() => {
-      checkAuth(); // Check authentication status when the component mounts
+      checkAuth();
     }, [checkAuth]);
 
-    // If no user is authenticated, redirect to the login page
-    if (!authUser) {
-      router.push("/login"); // Redirect to the login page if not authenticated
-      return null; // Return nothing while redirecting
+    // Redirect to the login page if not authenticated
+    useEffect(() => {
+      if (authUser === null) {
+        router.push("/login");
+      }
+    }, [authUser, router]);
+
+    // Show a loading indicator while authentication is being checked
+    if (authUser === null) {
+      return <div>Loading...</div>;
     }
 
-    return <Component {...props} />; // Render the wrapped component if authenticated
+    // Render the wrapped component if authenticated
+    return <Component {...props} />;
   };
 
   return Wrapper;

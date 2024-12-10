@@ -131,6 +131,8 @@ import jwt from "jsonwebtoken";
 export const checkAuth = async (req, res) => {
     try {
         const token = req.cookies.token;
+        console.log("toekn is", token);
+        
         if (!token) {
             return res.status(401).json({ message: "Unauthorized" });
         }
@@ -146,4 +148,4 @@ export const checkAuth = async (req, res) => {
 
 
 
-export default { signupUser, loginUser, logoutUser };
+export default { signupUser, loginUser, logoutUser ,checkAuth};

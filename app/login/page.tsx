@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../store/useAuthStore';
 
 const Page: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -12,6 +13,8 @@ const Page: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const router = useRouter();
+
+  const {login} = useAuthStore();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -31,11 +34,13 @@ const Page: React.FC = () => {
           email,
           password,
         }),
+        credentials: 'include',
       });
 
       const data = await response.json();
 
       if (response.ok) {
+        login(data.user)
         
         router.push('/chatpage');
       } else {

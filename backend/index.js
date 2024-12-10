@@ -5,15 +5,19 @@ import connectdb from "./dbcon.js";
 import userRoute from "./routes/userRoute.js";
 import messageRoute from "./routes/messageRoute.js";
 import cors from "cors"
+import cookieParser from "cookie-parser";
 // Middleware
 dotenv.config();
 connectdb();
 app.use(express.json());
 
 app.use(cors({
-  origin: 'http://localhost:3000'
+  origin: 'http://localhost:3000',
+  credentials: true,
 }))
+
 // Parse incoming JSON requests
+app.use(cookieParser());
 
 // Basic route
 app.get('/', (req, res) => {

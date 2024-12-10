@@ -1,5 +1,6 @@
 import { create } from "zustand";
 
+
 export const useAuthStore = create((set) => ({
   authUser: null, // Holds the authenticated user data
 
@@ -8,7 +9,7 @@ export const useAuthStore = create((set) => ({
     try {
       const response = await fetch("http://localhost:3001/api/user/checkAuth", {
         method: "GET",
-        credentials: "include", // Ensures cookies are sent with the request
+        credentials: "include",
       });
 
       // Parse the response data
@@ -25,6 +26,10 @@ export const useAuthStore = create((set) => ({
     }
   },
 
+  login: (user) => {
+    set({ authUser: user });
+   
+  },
   // Optionally, add a function to log out the user
   logout: async () => {
     try {
