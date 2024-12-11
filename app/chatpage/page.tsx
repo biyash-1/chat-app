@@ -1,13 +1,14 @@
 
 "use client"
-import React , {useEffect} from 'react'
-import { withAuth } from '@/lib/withAuth'
+
+
+
 import { useAuthStore } from '../store/useAuthStore';
+import  withAuth  from '@/lib/withAuth';
 
 const page = () => {
     const {authUser} = useAuthStore();
-
-    console.log(authUser);
+    console.log("auth status", authUser);
    
     
     
