@@ -1,15 +1,18 @@
 "use client"
-
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-
+import { useAuthStore } from "./store/useAuthStore";
 import { useRouter } from "next/navigation";
 export default function Home() {
-
+  const { authUser } = useAuthStore();
   const router = useRouter();
 
   const handleLogin= () =>{
      router.push("/login");
   }
+  useEffect(() => {
+    console.log("Auth state changed ", { authUser });
+  }, [authUser]);
  
 
   return (

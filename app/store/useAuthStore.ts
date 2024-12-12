@@ -1,10 +1,8 @@
 import { create } from "zustand";
-import { persist,createJSONStorage  } from "zustand/middleware";
-
-
+import { persist } from "zustand/middleware";
 
 interface AuthState {
-  authUser: any; // You might want to replace `any` with a more specific type
+  authUser: any; // Replace `any` with a more specific type if available
   checkAuth: () => Promise<void>;
   login: (user: any) => void;
   logout: () => Promise<void>;
@@ -12,8 +10,8 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
-      authUser: null, // Holds the authenticated user data
+    (set, get) => ({
+      authUser: null,
 
       checkAuth: async () => {
         try {
@@ -36,7 +34,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       login: (user) => {
-        set({ authUser: user });
+        set({ authUser: user }); // Set the user in the state
       },
 
       logout: async () => {
@@ -52,8 +50,8 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: "auth-storage", // Key for localStorage/sessionStorage
-      storage: createJSONStorage(() => localStorage), // Use localStorage to persist state
+      name: "auth-storage", // Name of the localStorage key
+      partialize: (state) => ({ authUser: state.authUser }), // Only persist `authUser`
     }
   )
 );
