@@ -146,6 +146,22 @@ export const checkAuth = async (req, res) => {
 };
 
 
+const updateProfile = async (req, res) => {
+  try { 
+    const {profilepic} = req.body;
+    const userId = req.user._id;
+    if(!profilepic){
+        return res.status(400).json({message:"Please provide a profile picture"});
+    }
+    const uploadResponse = await cloudinary.uploader.upload(profilepic);
+    const updatedUser = await User.findByIdAndUpdate(userId,{profilepic:uploadResponse.secure_url}, {new: true});
+    res.status(200).json(updatedUser);
+
+  }
+  catch(error){
+      console.log("error in profile picture",error);
+  }
+}
 
 
-export default { signupUser, loginUser, logoutUser ,checkAuth};
+export default { signupUser, loginUser, logoutUser ,updateProfile,checkAuth};
