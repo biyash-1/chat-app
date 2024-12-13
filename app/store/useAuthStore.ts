@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface AuthState {
-  authUser: any; // Replace `any` with a more specific type if available
+  authUser: any; 
   checkAuth: () => Promise<void>;
   login: (user: any) => void;
   logout: () => Promise<void>;
