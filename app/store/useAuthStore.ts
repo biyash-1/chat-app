@@ -1,17 +1,21 @@
+import axios from "axios";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface AuthState {
-  authUser: any; 
+  authUser: any; // Replace `any` with a specific type for better type safety
+  isUpdatingProfile: boolean;
   checkAuth: () => Promise<void>;
   login: (user: any) => void;
   logout: () => Promise<void>;
+  updateProfile: (data: any) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       authUser: null,
+      isUpdatingProfile: false,
 
       checkAuth: async () => {
         try {
@@ -46,6 +50,21 @@ export const useAuthStore = create<AuthState>()(
           set({ authUser: null }); // Clear the user data after logout
         } catch (err) {
           console.error("Error during logout:", err);
+        }
+      },
+
+      updateProfile: async (profilepic) => {
+        set({ isUpdatingProfile: true }); // Start the updating process
+        try {
+          const response =  await axios.patch("http://localhost:3001/api/user/update-profile", { profilepic }, {
+            withCredentials: true,
+          });
+          
+          set({ authUser: response.data }); // Update the user data
+        } catch (err) {
+          console.error("Error updating profile:", err);
+        } finally {
+          set({ isUpdatingProfile: false }); // End the updating process
         }
       },
     }),

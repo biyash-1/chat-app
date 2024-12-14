@@ -1,10 +1,9 @@
 "use client";
-
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@radix-ui/react-label";
 import { useAuthStore } from "../store/useAuthStore";
+import { useState } from "react";
 
 interface UserProfile {
   username: string;
@@ -14,16 +13,54 @@ interface UserProfile {
 }
 
 const ProfilePage: React.FC = () => {
-  
-  const {authUser, updateProfile} = useAuthStore();
+  const [selectedImg, setSelectedImg] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
- 
+  const { authUser, updateProfile } = useAuthStore();
 
+  console.log("auth user is",authUser);
   
+
+
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      if (reader.result) {
+        setSelectedImg(reader.result as string);
+      }
+    };
+  };
+
+  const handleImageUpload = async () => {
+    if (!selectedImg) return;
+
+    setUploading(true);
+    try {
+      await updateProfile( selectedImg);
+      setSelectedImg(null); // Clear the temporary image after upload
+    } catch (error) {
+      console.error("Failed to upload avatar", error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const userProfile: UserProfile = {
+    username: authUser.username || "",
+    email: authUser.email,
+    joinedDate: authUser.joinedDate,
+    avatarUrl: authUser.profilePicture,
+  };
+
   return (
-    <div className="h-screen pt-15 ">
+    <div className="h-screen pt-15">
       <div className="max-w-2xl mx-auto p-4 py-8">
-        <div className="rounded-xl p-6  shadow space-y-8">
+        <div className="rounded-xl p-6 shadow space-y-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold">Profile</h1>
             <p className="text-gray-500">Your profile information</p>
@@ -33,9 +70,7 @@ const ProfilePage: React.FC = () => {
           <div className="flex flex-col items-center">
             <div className="relative">
               <img
-                src={
-                  ""
-                }
+                src={selectedImg || userProfile.avatarUrl || "/default-avatar.png"}
                 alt="User Avatar"
                 className="w-24 h-24 rounded-full object-cover"
               />
@@ -69,11 +104,19 @@ const ProfilePage: React.FC = () => {
           <div className="space-y-4">
             <div>
               <Label className="block text-gray-700 font-medium">Username</Label>
-              <Input value={userProfile.username} readOnly className="bg-gray-100" />
+              <Input
+                value={userProfile.username}
+                readOnly
+                className="bg-gray-100"
+              />
             </div>
             <div>
               <Label className="block text-gray-700 font-medium">Email</Label>
-              <Input value={userProfile.email} readOnly className="bg-gray-100" />
+              <Input
+                value={userProfile.email}
+                readOnly
+                className="bg-gray-100"
+              />
             </div>
           </div>
 

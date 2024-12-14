@@ -9,7 +9,7 @@ import cookieParser from "cookie-parser";
 // Middleware
 dotenv.config();
 connectdb();
-app.use(express.json());
+app.use(express.json({ limit: "10mb" })); 
 
 app.use(cors({
   origin: 'http://localhost:3000',

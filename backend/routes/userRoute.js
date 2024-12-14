@@ -7,7 +7,7 @@ import { signupUser, loginUser,checkAuth,updateProfile } from "../controllers/au
 
 router.post("/signup", signupUser);
 router.post("/login", loginUser);
-router.patch("/update-profile",updateProfile)
+router.patch("/update-profile", authenticate,updateProfile)
 router.get("/checkAuth",authenticate, checkAuth);
 
 export default router;

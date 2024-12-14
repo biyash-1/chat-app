@@ -2,6 +2,20 @@ import User from "../model/userModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+import {v2 as cloudinary} from "cloudinary";
+
+import dotenv from "dotenv";
+import { log } from "console";
+dotenv.config();
+
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+
 // Signup User
  export const signupUser = async (req, res) => {
     try {
@@ -146,16 +160,21 @@ export const checkAuth = async (req, res) => {
 };
 
 
-const updateProfile = async (req, res) => {
+ export const updateProfile = async (req, res) => {
   try { 
     const {profilepic} = req.body;
-    const userId = req.user._id;
+    console.log("profilepic is",profilepic);
+    
+    
+    const userId = req.user.id;
+    console.log("user id is",userId);
     if(!profilepic){
         return res.status(400).json({message:"Please provide a profile picture"});
     }
     const uploadResponse = await cloudinary.uploader.upload(profilepic);
-    const updatedUser = await User.findByIdAndUpdate(userId,{profilepic:uploadResponse.secure_url}, {new: true});
+    const updatedUser = await User.findByIdAndUpdate(userId,{ profilePicture:uploadResponse.secure_url}, {new: true});
     res.status(200).json(updatedUser);
+    console.log("updated user image  is",updatedUser.profilepic);
 
   }
   catch(error){
