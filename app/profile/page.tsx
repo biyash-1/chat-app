@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@radix-ui/react-label";
 import { useAuthStore } from "../store/useAuthStore";
 import { useState } from "react";
+import withAuth from "../../lib/withAuth"
 
 interface UserProfile {
   username: string;
@@ -51,11 +52,12 @@ const ProfilePage: React.FC = () => {
   };
 
   const userProfile: UserProfile = {
-    username: authUser.username || "",
-    email: authUser.email,
-    joinedDate: authUser.joinedDate,
-    avatarUrl: authUser.profilePicture,
+    username: authUser?.username || "",
+    email: authUser?.email || "",
+    joinedDate: authUser?.joinedDate || new Date().toISOString(),
+    avatarUrl: authUser?.profilePicture || null,
   };
+  
 
   return (
     <div className="h-screen pt-14">
@@ -135,4 +137,4 @@ const ProfilePage: React.FC = () => {
   );
 };
 
-export default ProfilePage;
+export default withAuth(ProfilePage);
