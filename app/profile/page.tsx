@@ -3,8 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@radix-ui/react-label";
 import { useAuthStore } from "../store/useAuthStore";
-import { useState } from "react";
-import withAuth from "../../lib/withAuth"
+import { useEffect, useState } from "react";
+import withAuth from "../../lib/withAuth";
 
 interface UserProfile {
   username: string;
@@ -14,15 +14,20 @@ interface UserProfile {
 }
 
 const ProfilePage: React.FC = () => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const [selectedImg, setSelectedImg] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const { authUser, updateProfile } = useAuthStore();
 
-  console.log("auth user is",authUser);
-  
-
-
+  if (!isClient) {
+    return <div>Loading...</div>;
+  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,7 +47,7 @@ const ProfilePage: React.FC = () => {
 
     setUploading(true);
     try {
-      await updateProfile( selectedImg);
+      await updateProfile(selectedImg);
       setSelectedImg(null); // Clear the temporary image after upload
     } catch (error) {
       console.error("Failed to upload avatar", error);
@@ -57,7 +62,6 @@ const ProfilePage: React.FC = () => {
     joinedDate: authUser?.joinedDate || new Date().toISOString(),
     avatarUrl: authUser?.profilePicture || null,
   };
-  
 
   return (
     <div className="h-screen pt-14">

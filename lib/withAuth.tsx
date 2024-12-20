@@ -5,18 +5,18 @@ import { useEffect, FC } from "react";
 
 const withAuth = <P extends object>(WrappedComponent: FC<P>): FC<P> => {
   const AuthComponent: FC<P> = (props) => {
-    const { authUser } = useAuthStore();
+    const { authUser,checkAuth } = useAuthStore();
     const router = useRouter();
 
     useEffect(() => {
-      if (!authUser) {
+      if (!checkAuth) {
 console.log("WithAuth - Current state:", { authUser });
         router.push("/login");
       }
     }, [authUser, router]);
 
     
-    // Return WrappedComponent with props passed down
+    
     return <WrappedComponent {...props} />;
   };
 

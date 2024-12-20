@@ -1,9 +1,9 @@
 import axios from "axios";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface AuthState {
-  authUser: any; // Replace `any` with a specific type for better type safety
+  authUser: any; 
   isUpdatingProfile: boolean;
   checkAuth: () => Promise<void>;
   login: (user: any) => void;
@@ -13,7 +13,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       authUser: null,
       isUpdatingProfile: false,
 
@@ -26,6 +26,7 @@ export const useAuthStore = create<AuthState>()(
 
           if (response.ok) {
             const data = await response.json();
+            console.log("Authentication successful:", data.user);
             set({ authUser: data.user }); // Update the authUser in the state
           } else {
             console.error("Authentication failed or not authorized");
@@ -54,7 +55,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       updateProfile: async (profilepic) => {
-        set({ isUpdatingProfile: true }); // Start the updating process
+        set({ isUpdatingProfile: true });
         try {
           const response =  await axios.patch("http://localhost:3001/api/user/update-profile", { profilepic }, {
             withCredentials: true,
@@ -69,8 +70,8 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: "auth-storage", // Name of the localStorage key
-      partialize: (state) => ({ authUser: state.authUser }), // Only persist `authUser`
+      name: "auth-storage", 
+      storage: createJSONStorage(()=> localStorage)
     }
   )
 );
