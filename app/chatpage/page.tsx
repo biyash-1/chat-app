@@ -7,10 +7,12 @@ const Page = () => {
   console.log("auth status of chat page", authUser);
 
   return (
-    <div>
-      <h1>Hello, this is the chat page</h1>
-      <div>
-        <h1>sidebar</h1>
+    <div className="mx-auto p-9 items-center h-screen flex justify-between">
+      <div className="sidebar w-[25%]  border-r h-full ">
+         <h1>sidebar section</h1>
+        </div>
+        <div>
+         <h1>chat section</h1>
       </div>
     </div>
   );

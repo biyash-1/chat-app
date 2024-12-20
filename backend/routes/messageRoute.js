@@ -5,7 +5,7 @@ import authenticate from "../middleware/authmiddleware.js"
 import {getMessages, getUsersForSidebar} from "../controllers/messageController.js";
 
 
-router.get("/getUsers", authenticate, getUsersForSidebar);
+router.get("/getUsers", getUsersForSidebar);
 
 router.get("/:id", authenticate, getMessages);
 
