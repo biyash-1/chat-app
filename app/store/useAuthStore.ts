@@ -9,6 +9,7 @@ interface AuthState {
   login: (user: any) => void;
   logout: () => Promise<void>;
   updateProfile: (data: any) => Promise<void>;
+  onlineUsers: any[];
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -53,6 +54,7 @@ export const useAuthStore = create<AuthState>()(
           console.error("Error during logout:", err);
         }
       },
+      onlineUsers: [],
 
       updateProfile: async (profilepic) => {
         set({ isUpdatingProfile: true });
