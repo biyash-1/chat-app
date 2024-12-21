@@ -5,7 +5,7 @@ interface User {
   _id: string;
   username: string;
   fullName: string;
-  profilePic?: string;
+  profilePicture?: string;
   isOnline: boolean;
 }
 
@@ -20,6 +20,7 @@ interface ChatStoreState {
   getUsers: () => Promise<void>;
   getMessages: (userId: string) => Promise<void>;
   setSelectedUser: (selectedUser: any) => void;
+  sendMessage: (messageData: any) => Promise<void>;
 }
 
 export const useChatStore = create<ChatStoreState>((set) => ({
@@ -49,8 +50,13 @@ export const useChatStore = create<ChatStoreState>((set) => ({
   getMessages: async (userId: string) => {
     set({ isMessagesLoading: true });
     try {
-      const response = await axios.get(`http://localhost:8000/message/${userId}`);
-      set({ messages: response.data });
+      const response = await fetch(`http://localhost:3001/api/message/${userId}` ,{
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await response.json();
+      set({ messages: data });
+      console.log("data is", data);
     } catch (error) {
       console.error(`Failed to fetch messages for user ${userId}:`, error);
       // Optionally, you can add error state management here.
@@ -58,5 +64,30 @@ export const useChatStore = create<ChatStoreState>((set) => ({
       set({ isMessagesLoading: false });
     }
   },
+  sendMessage: async (messageData: any) => {
+    set({ isMessagesLoading: true });
+    const { selectedUser, messages } = useChatStore.getState();
+  
+    try {
+      const response = await fetch(`http://localhost:3001/api/message/send/${selectedUser?._id}`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",  // Make sure the body is sent as JSON
+        },
+        body: JSON.stringify(messageData), // Properly stringify the messageData
+      });
+  
+      const data = await response.json();
+      console.log("data is", data);
+      set({ messages: [...messages, data] });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      set({ isMessagesLoading: false });
+    }
+  }
+  
+  ,
   setSelectedUser :(selectedUser:any) => set({ selectedUser }),
 }));
