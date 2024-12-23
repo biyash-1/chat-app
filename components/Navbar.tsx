@@ -1,13 +1,15 @@
 "use client";
 
+import React, { useEffect } from "react";
 import { useAuthStore } from "../app/store/useAuthStore"; // Adjust the import path based on your project structure
 import { useRouter } from "next/navigation";
-import React from "react";
 import { Button } from "./ui/button";
 
 const Navbar: React.FC = () => {
-  const { authUser, logout } = useAuthStore();
+  const { authUser, checkAuth, logout } = useAuthStore();
   const router = useRouter();
+
+ 
 
   const handleLogout = async () => {
     await logout(); // Call the logout function from Zustand
@@ -19,7 +21,6 @@ const Navbar: React.FC = () => {
   };
 
   const toggleMode = () => {
-    // Implement your theme toggle logic here
     console.log("Toggling mode...");
   };
 
@@ -32,25 +33,20 @@ const Navbar: React.FC = () => {
 
       {/* Navigation Links */}
       <div className="flex space-x-4">
-        <button
-          onClick={() => router.push("/")}
-          className="hover:underline hover:text-gray-300"
-        >
+        <button onClick={() => router.push("/")} className="hover:underline hover:text-gray-300">
           Home
         </button>
-        <button
-          onClick={() => router.push("/about")}
-          className="hover:underline hover:text-gray-300"
-        >
+        <button onClick={() => router.push("/about")} className="hover:underline hover:text-gray-300">
           About
         </button>
+        <button onClick={() => router.push("/chatpage")} className="hover:underline hover:text-gray-300">
+          Messenger
+        </button>
         {authUser && (
-          <button
-            onClick={() => router.push("/profile")}
-            className="hover:underline hover:text-gray-300"
-          >
+          <button onClick={() => router.push("/profile")} className="hover:underline hover:text-gray-300">
             Profile
           </button>
+          
         )}
       </div>
 
@@ -64,17 +60,11 @@ const Navbar: React.FC = () => {
             Logout
           </button>
         ) : (
-          <Button
-            onClick={handleLogin}
-            className="px-4 py-2 rounded"
-          >
+          <Button onClick={handleLogin} className="px-4 py-2 rounded">
             Login
           </Button>
         )}
-        <button
-          onClick={toggleMode}
-          className="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-full"
-        >
+        <button onClick={toggleMode} className="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-full">
           🌓
         </button>
       </div>
