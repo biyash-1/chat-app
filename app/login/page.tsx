@@ -21,39 +21,39 @@ const Page: React.FC = () => {
       alert('Please fill in all fields');
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
+      const body = JSON.stringify({ email, password });
+      console.log('Request Body:', body); // Debugging log
+  
       const response = await fetch('http://localhost:3001/api/user/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
         credentials: 'include',
+        body, // Correctly serialized JSON
       });
-
-      const data = await response.json();
-
+  
+      const data = response.ok ? await response.json() : {};
+  
       if (response.ok) {
-        login(data.user)
-        
+        login(data.user); // Store user in Zustand state
         router.push('/chatpage');
       } else {
-    
         alert(data.message || 'Invalid credentials');
       }
-    } catch (error) {
-      console.error('An error occurred during login:', error);
+    } catch (error: any) {
+      console.error('An error occurred during login:', error?.message || error);
       alert('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+  
+  
 
   const handleSignup = () => {
     router.push('/signup');
