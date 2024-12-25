@@ -1,5 +1,5 @@
 import express from 'express';
-const app = express();
+
 import dotenv from "dotenv";
 import connectdb from "./dbcon.js";
 import userRoute from "./routes/userRoute.js";
@@ -7,6 +7,8 @@ import messageRoute from "./routes/messageRoute.js";
 import cors from "cors"
 import cookieParser from "cookie-parser";
 // Middleware
+
+import {app, server} from "./socket.js";
 dotenv.config();
 connectdb();
 app.use(express.json({ limit: "10mb" })); 
@@ -30,6 +32,6 @@ app.use("/api/message", messageRoute);
 
 // Start server
 const PORT = 3001; // Define the port
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
