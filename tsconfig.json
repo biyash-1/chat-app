@@ -35,7 +35,7 @@
     ".next/types/**/*.ts",
     "backend/middleware/authmiddleware.js",
     "lib/withAuth.tsx"
-  ],
+, "app/store/useChatStore.js"  ],
   "exclude": [
     "node_modules"
   ]
