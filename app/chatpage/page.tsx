@@ -10,7 +10,7 @@ import Sidebar from "@/components/Sidebar";
 const Page = () => {
   const { authUser,onlineUsers } = useAuthStore();
   console.log("auth status of chat page", authUser);
-  console.log("online users", onlineUsers);
+  console.log("online users are", onlineUsers);
   const { selectedUser } = useChatStore();
 
   return (

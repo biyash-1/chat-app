@@ -48,7 +48,7 @@ const ProfilePage: React.FC = () => {
     setUploading(true);
     try {
       await updateProfile(selectedImg);
-      setSelectedImg(null); // Clear the temporary image after upload
+      setSelectedImg(null); 
     } catch (error) {
       console.error("Failed to upload avatar", error);
     } finally {

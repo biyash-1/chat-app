@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useChatStore } from "../app/store/useChatStore";
 import SidebarSkeleton from "./SidebarSkeleton";
 import { Users } from "lucide-react";
+import { useAuthStore } from "@/app/store/useAuthStore";
 
 const Sidebar = () => {
   const {
@@ -15,6 +16,9 @@ const Sidebar = () => {
   useEffect(() => {
     getUsers();
   }, [getUsers]);
+  const {onlineUsers} = useAuthStore();
+  console.log("Online Users are:", onlineUsers);
+
 
   console.log("All Users:", users);
 
@@ -51,12 +55,14 @@ const Sidebar = () => {
               <div className="hidden lg:flex flex-col text-left min-w-0">
                 <div className="flex items-center gap-2">
                   <h1 className="font-medium truncate">{user.username}</h1>
-                  {user.isOnline && (
+                  {onlineUsers.includes(user._id) && (
                     <span className="size-3 bg-green-500 rounded-full ring-2 ring-zinc-900" />
                   )}
                 </div>
                 <div className="text-sm text-zinc-400">
-                  {user.isOnline ? "Online" : "Offline"}
+                  {onlineUsers.includes(user._id)
+                    ? "Online"
+                    : "offline"}
                 </div>
               </div>
             </button>

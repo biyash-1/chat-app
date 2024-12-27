@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState } from 'react';
 import { Card, CardFooter, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -13,47 +14,25 @@ const Page: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const router = useRouter();
-
-  const {login} = useAuthStore();
+  const{login} = useAuthStore();
 
   const handleLogin = async () => {
     if (!email || !password) {
       alert('Please fill in all fields');
       return;
     }
-  
+    const data ={email,password};
+
     setLoading(true);
-  
     try {
-      const body = JSON.stringify({ email, password });
-      console.log('Request Body:', body); // Debugging log
-  
-      const response = await fetch('http://localhost:3001/api/user/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body, // Correctly serialized JSON
-      });
-  
-      const data = response.ok ? await response.json() : {};
-  
-      if (response.ok) {
-        login(data.user); // Store user in Zustand state
-        router.push('/chatpage');
-      } else {
-        alert(data.message || 'Invalid credentials');
-      }
-    } catch (error: any) {
-      console.error('An error occurred during login:', error?.message || error);
-      alert('An error occurred. Please try again.');
+      await login(data); // Call the login method from the store
+      router.push('/chatpage');
+    } catch (err: any) {
+      alert(err.message || 'An error occurred during login. Please try again.');
     } finally {
       setLoading(false);
     }
   };
-  
-  
 
   const handleSignup = () => {
     router.push('/signup');
@@ -62,10 +41,7 @@ const Page: React.FC = () => {
   return (
     <div className="flex items-center justify-center mx-auto p-20">
       <Card className="p-4 flex flex-col items-start justify-center gap-4 w-1/4">
-        <CardHeader className="text-3xl font-bold text-center mx-auto">
-          Login
-        </CardHeader>
-
+        <CardHeader className="text-3xl font-bold text-center mx-auto">Login</CardHeader>
         <Label htmlFor="email">Email:</Label>
         <Input
           id="email"
@@ -74,7 +50,6 @@ const Page: React.FC = () => {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
         />
-
         <Label htmlFor="password">Password:</Label>
         <Input
           id="password"
@@ -83,13 +58,11 @@ const Page: React.FC = () => {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
         />
-
         <CardFooter className="flex flex-col">
           <div className="flex flex-col justify-between gap-4">
             <Button onClick={handleLogin} disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </Button>
-
             <Button onClick={handleSignup}>Signup</Button>
           </div>
         </CardFooter>

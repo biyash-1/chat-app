@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import {v2 as cloudinary} from "cloudinary";
 
 import dotenv from "dotenv";
-import { log } from "console";
+import { log, profile } from "console";
 dotenv.config();
 
 
@@ -117,6 +117,7 @@ cloudinary.config({
                 id: user._id,
                 username: user.username,
                 email: user.email,
+                profilePicture: user.profilePicture,
             },
         });
     } catch (error) {
@@ -144,21 +145,28 @@ cloudinary.config({
 };
 export const checkAuth = async (req, res) => {
     try {
-        const token = req.cookies.token;
-        console.log("toekn is", token);
-        
-        if (!token) {
-            return res.status(401).json({ message: "Unauthorized" });
-        }
-
-        const verified = jwt.verify(token, process.env.JWT_SECRET);
-        res.status(200).json({ message: "Authenticated", user: verified });
+      const token = req.cookies.token;
+     
+      if (!token) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+  
+      const verified = jwt.verify(token, process.env.JWT_SECRET);
+  
+      // Fetch user from the database with profilePicture
+      const user = await User.findById(verified.id).select('username email profilePicture');
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+    
+  
+      res.status(200).json({ message: "Authenticated", user });
     } catch (error) {
-        console.error(error);
-        res.status(401).json({ message: "Invalid or expired token" });
+      console.error(error);
+      res.status(401).json({ message: "Invalid or expired token" });
     }
-};
-
+  };
+  
 
  export const updateProfile = async (req, res) => {
   try { 

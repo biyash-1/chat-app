@@ -1,5 +1,6 @@
-import axios from "axios";
 import { create } from "zustand";
+import { Socket } from "socket.io-client"; // Ensure you have this installed
+import { useAuthStore } from "./useAuthStore";
 
 interface User {
   _id: string;
@@ -9,24 +10,34 @@ interface User {
   isOnline: boolean;
 }
 
+interface Message {
+  _id: string;
+  sender: string;
+  createdAt: string;
+  text?: string;
+  image?: string;
+}
 
 interface ChatStoreState {
-  
-  messages: any[]; // Replace `any` with the actual type of a message
-  users: any[]; // Replace `any` with the actual type of a user
+  messages: Message[];
+  socket: Socket | null;
+  users: User[];
   selectedUser: User | null;
   isUserLoading: boolean;
   isMessagesLoading: boolean;
   getUsers: () => Promise<void>;
   getMessages: (userId: string) => Promise<void>;
-  setSelectedUser: (selectedUser: any) => void;
+  setSelectedUser: (selectedUser: User | null) => void;
   sendMessage: (messageData: any) => Promise<void>;
+  subscribeToMessages: () => void;
+  unsubscribeFromMessages: () => void;
 }
 
-export const useChatStore = create<ChatStoreState>((set) => ({
+export const useChatStore = create<ChatStoreState>((set, get) => ({
   messages: [],
   users: [],
-  selectedUser:null,
+  socket: null,
+  selectedUser: null,
   isUserLoading: false,
   isMessagesLoading: false,
 
@@ -35,13 +46,12 @@ export const useChatStore = create<ChatStoreState>((set) => ({
     try {
       const response = await fetch("http://localhost:3001/api/message/getUsers", {
         method: "GET",
-        credentials: "include", // Correct way to send credentials
+        credentials: "include",
       });
       const data = await response.json();
-      set({ users:data });
+      set({ users: data });
     } catch (error) {
       console.error("Failed to fetch users:", error);
-      // Optionally, you can add error state management here.
     } finally {
       set({ isUserLoading: false });
     }
@@ -50,44 +60,78 @@ export const useChatStore = create<ChatStoreState>((set) => ({
   getMessages: async (userId: string) => {
     set({ isMessagesLoading: true });
     try {
-      const response = await fetch(`http://localhost:3001/api/message/${userId}` ,{
+      const response = await fetch(`http://localhost:3001/api/message/${userId}`, {
         method: "GET",
         credentials: "include",
       });
       const data = await response.json();
       set({ messages: data });
-      console.log("data is", data);
     } catch (error) {
       console.error(`Failed to fetch messages for user ${userId}:`, error);
-      // Optionally, you can add error state management here.
     } finally {
       set({ isMessagesLoading: false });
     }
   },
+
   sendMessage: async (messageData: any) => {
     set({ isMessagesLoading: true });
-    const { selectedUser, messages } = useChatStore.getState();
-  
+    const { selectedUser, messages } = get();
+    if (!selectedUser) {
+      console.error("No user selected to send a message");
+      set({ isMessagesLoading: false });
+      return;
+    }
+
+    
     try {
-      const response = await fetch(`http://localhost:3001/api/message/send/${selectedUser?._id}`, {
+      const response = await fetch(`http://localhost:3001/api/message/send/${selectedUser._id}`, {
         method: "POST",
         credentials: "include",
         headers: {
-          "Content-Type": "application/json",  // Make sure the body is sent as JSON
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(messageData), // Properly stringify the messageData
+        body: JSON.stringify(messageData),
       });
-  
+
       const data = await response.json();
-      console.log("data is", data);
       set({ messages: [...messages, data] });
     } catch (error) {
-      console.log(error);
+      console.error("Error sending message:", error);
     } finally {
       set({ isMessagesLoading: false });
     }
-  }
+  },
+
+  subscribeToMessages: () => {
+    const { selectedUser } = get();
+    if (!selectedUser) return;
   
-  ,
-  setSelectedUser :(selectedUser:any) => set({ selectedUser }),
+    const  socket  = useAuthStore.getState().socket;
+    if (!socket) {
+      console.error("Socket is not initialized or not connected");
+      return;
+    }
+  
+     // Clear previous listeners to avoid duplicates
+     socket.on("newMessage", (newMessage:any) => {
+      const isMessageSentFromSelectedUser = newMessage.sender === selectedUser._id;
+      if (!isMessageSentFromSelectedUser) return;
+
+      set({
+        messages: [...get().messages, newMessage],
+      });
+    });
+  },
+  
+
+  unsubscribeFromMessages: () => {
+    const { socket } = useAuthStore.getState();
+    if (socket) {
+      socket.off("newMessage");
+    } else {
+      console.error("Socket is not initialized");
+    }
+  },
+
+  setSelectedUser: (selectedUser: User | null) => set({ selectedUser }),
 }));
