@@ -5,7 +5,7 @@ import axios from "axios";
 
 interface AuthState {
   hasHydrated: boolean;
-  authUser: any; 
+  authUser: any;
   isUpdatingProfile: boolean;
   onlineUsers: any[];
 
@@ -25,7 +25,6 @@ export const useAuthStore = create<AuthState>()(
       authUser: null,
       onlineUsers: [],
       isUpdatingProfile: false,
-     
       socket: null, // This will be excluded from persistence
 
       checkAuth: async () => {
@@ -37,7 +36,7 @@ export const useAuthStore = create<AuthState>()(
           if (response.ok) {
             const data = await response.json();
             set({ authUser: data.user });
-             get().connectSocket();  // Connect socket after successful authentication
+            get().connectSocket(); // Connect socket after successful authentication
           } else {
             set({ authUser: null });
           }
@@ -62,7 +61,7 @@ export const useAuthStore = create<AuthState>()(
             const responseData = await response.json();
             set({ authUser: responseData.user });
             get().connectSocket(); // Connect socket after successful login
-            console.log("auth user in login function is",get().authUser);
+            console.log("auth user in login function is", get().authUser);
           } else {
             const errorData = await response.json();
             throw new Error(errorData.message || "Invalid credentials");
@@ -86,7 +85,7 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      updateProfile: async (profilepic:any) => {
+      updateProfile: async (profilepic: any) => {
         set({ isUpdatingProfile: true });
         try {
           const response = await axios.patch(
@@ -104,26 +103,26 @@ export const useAuthStore = create<AuthState>()(
 
       connectSocket: () => {
         const { authUser } = get();
-        console.log("authUser",authUser)
-        
+        console.log("authUser", authUser);
+
         if (!authUser) return;
-    
+
         const socket = io("http://localhost:3001", {
           query: {
             userId: authUser.id,
           },
         });
         socket.connect();
-    
+
         set({ socket: socket });
 
-        console.log("socket from getconnect function is",socket);
-    
+        console.log("socket from getconnect function is", socket);
+
         socket.on("getOnlineUsers", (userIds) => {
-          console.log("Online users received:", userIds); 
+          console.log("Online users received:", userIds);
           set({ onlineUsers: userIds });
         });
-        console.log("onone")
+        console.log("onone");
       },
 
       disconnectSocket: () => {
@@ -137,20 +136,15 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
-      // Exclude socket and socket-related methods from persistence
-      partialize: (state) =>
-        Object.fromEntries(
+      partialize: (state) => ({
+        authUser: state.authUser, // Only persist authUser
+        // Exclude socket and socket-related methods from persistence
+        ...Object.fromEntries(
           Object.entries(state).filter(
             ([key]) => !["socket", "connectSocket", "disconnectSocket"].includes(key)
           )
         ),
-      onRehydrateStorage: () => (state:any) => {
-        setTimeout(() => {
-          if (state) {
-            state.hasHydrated = true;
-          }
-        }, 0);
-      },
+      }),
     }
   )
 );
