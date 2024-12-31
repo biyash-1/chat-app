@@ -8,6 +8,7 @@ interface User {
   fullName: string;
   profilePicture?: string;
   isOnline: boolean;
+
 }
 
 interface Message {
@@ -16,6 +17,8 @@ interface Message {
   createdAt: string;
   text?: string;
   image?: string;
+  newMessage: Message;
+  
 }
 
 interface ChatStoreState {
@@ -76,13 +79,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
   sendMessage: async (messageData: any) => {
     set({ isMessagesLoading: true });
     const { selectedUser, messages } = get();
-    if (!selectedUser) {
-      console.error("No user selected to send a message");
-      set({ isMessagesLoading: false });
-      return;
-    }
-
-    
+  
     try {
       const response = await fetch(`http://localhost:3001/api/message/send/${selectedUser._id}`, {
         method: "POST",
@@ -92,21 +89,67 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
         },
         body: JSON.stringify(messageData),
       });
-
+  
       const data = await response.json();
-      set({ messages: [...messages, data] });
+      console.log("data",data);
+      
+      set({messages: [...messages,data]})
+     
     } catch (error) {
       console.error("Error sending message:", error);
+    
     } finally {
       set({ isMessagesLoading: false });
     }
   },
-
+  // sendMessage: async (messageData: any) => {
+  //   const { selectedUser, messages } = get();
+  //   const { authUser, socket } = useAuthStore.getState();
+  
+  //   if (!selectedUser || !authUser) {
+  //     console.error("No user selected or authUser is not available");
+  //     return;
+  //   }
+  
+  //   const tempMessage = {
+  //     _id: Date.now().toString(),
+  //     sender: authUser.id,
+  //     createdAt: new Date().toISOString(),
+  //     ...messageData,
+  //   };
+  
+  //   set({ messages: [...messages, tempMessage] });
+  
+  //   try {
+  //     const response = await fetch(`http://localhost:3001/api/message/send/${selectedUser._id}`, {
+  //       method: "POST",
+  //       credentials: "include",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(messageData),
+  //     });
+  
+  //     const data = await response.json();
+  //     set({ messages: [...get().messages.filter((msg) => msg._id !== tempMessage._id), data] });
+  
+  //     // Emit the message to the socket server
+  //     if (socket) {
+  //       socket.emit("sendMessage", data);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error sending message:", error);
+  //     set({ messages: get().messages.filter((msg) => msg._id !== tempMessage._id) });
+  //   }
+  // },
+  
+  
+  
   subscribeToMessages: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;
   
-    const  socket  = useAuthStore.getState().socket;
+    const  {socket}  = useAuthStore.getState();
     if (!socket) {
       console.error("Socket is not initialized or not connected");
       return;
@@ -116,12 +159,28 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
      socket.on("newMessage", (newMessage:any) => {
       const isMessageSentFromSelectedUser = newMessage.sender === selectedUser._id;
       if (!isMessageSentFromSelectedUser) return;
-
       set({
         messages: [...get().messages, newMessage],
       });
     });
   },
+  
+
+  // subscribeToMessages: () => {
+  //   const { selectedUser } = get();
+  //   const { socket, authUser } = useAuthStore.getState();
+  
+  //   if (!socket || !selectedUser || !authUser) return;
+  
+  //   socket.on("newMessage", (newMessage: Message) => {
+  //     const isRelevant =
+  //       newMessage.sender === selectedUser._id || newMessage.sender === authUser.id;
+  
+  //     if (isRelevant) {
+  //       set({ messages: [...get().messages, newMessage] });
+  //     }
+  //   });
+  // },
   
 
   unsubscribeFromMessages: () => {
