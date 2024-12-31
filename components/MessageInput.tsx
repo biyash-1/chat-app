@@ -32,13 +32,14 @@ const MessageInput = () => {
   const handleSendMessage = async (e: FormEvent) => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
-
+  
     try {
+      // Send message with either text or image
       await sendMessage({
         text: text.trim(),
         image: imagePreview,
       });
-
+  
       // Clear form after sending
       setText("");
       setImagePreview(null);
@@ -47,7 +48,7 @@ const MessageInput = () => {
       console.error("Failed to send message:", error);
     }
   };
-
+  
   return (
     <div className="p-4 w-full">
       {imagePreview && (
