@@ -129,6 +129,7 @@ cloudinary.config({
 // Logout User
  export const logoutUser = async (req, res) => {
     try {
+        console.log("logout user called");
        
         res.cookie("token", "", {
             httpOnly: true,
@@ -136,7 +137,7 @@ cloudinary.config({
             sameSite: "strict",
             maxAge: 0, // Expire immediately
         });
-
+      
         res.status(200).json({ message: "Logout successful" });
     } catch (error) {
         console.error(error);
