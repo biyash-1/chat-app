@@ -1,10 +1,10 @@
-"use client";
+// "use client";
 
-import WithAuth from "../../lib/withAuth";
-import { ReactNode } from "react";
+// import WithAuth from "../../lib/withAuth";
+// import { ReactNode } from "react";
 
-export default function Layout({ children }: { children: ReactNode }) {
-  const AuthenticatedComponent = WithAuth(() => <>{children}</>);
+// export default function Layout({ children }: { children: ReactNode }) {
+//   const AuthenticatedComponent = WithAuth(() => <>{children}</>);
 
-  return <AuthenticatedComponent />;
-}
+//   return <AuthenticatedComponent />;
+// }
