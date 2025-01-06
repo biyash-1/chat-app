@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useAuthStore } from "../app/store/useAuthStore"; // Adjust the import path based on your project structure
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "./ui/button";
+import { ModeToggle } from "./Mode-toogle";
 
 const Navbar: React.FC = () => {
-  const { authUser, checkAuth, logout } = useAuthStore();
+  const { authUser, logout } = useAuthStore();
   const router = useRouter();
-
- 
 
   const handleLogout = async () => {
     await logout(); // Call the logout function from Zustand
@@ -20,53 +20,64 @@ const Navbar: React.FC = () => {
     router.push("/login"); // Redirect to the login page
   };
 
-  const toggleMode = () => {
-    console.log("Toggling mode...");
-  };
-
   return (
-    <nav className="flex items-center justify-between px-4 py-2 bg-gray-800 text-white">
+    <nav className="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-gray-800">
       {/* Logo */}
-      <div className="text-lg font-bold cursor-pointer" onClick={() => router.push("/")}>
+      <div
+        className="text-lg font-bold cursor-pointer hover:text-gray-600 dark:hover:text-gray-300"
+        onClick={() => router.push("/")}
+      >
         MyApp<span className="text-red-500">beta</span>
       </div>
 
       {/* Navigation Links */}
       <div className="flex space-x-4">
-        <button onClick={() => router.push("/")} className="hover:underline hover:text-gray-300">
+        <Link
+          href="/"
+          className="hover:underline hover:text-gray-600 dark:hover:text-gray-300"
+        >
           Home
-        </button>
-        <button onClick={() => router.push("/about")} className="hover:underline hover:text-gray-300">
+        </Link>
+        <Link
+          href="/about"
+          className="hover:underline hover:text-gray-600 dark:hover:text-gray-300"
+        >
           About
-        </button>
-        <button onClick={() => router.push("/chatpage")} className="hover:underline hover:text-gray-300">
+        </Link>
+        <Link
+          href="/chatpage"
+          className="hover:underline hover:text-gray-600 dark:hover:text-gray-300"
+        >
           Messenger
-        </button>
+        </Link>
         {authUser && (
-          <button onClick={() => router.push("/profile")} className="hover:underline hover:text-gray-300">
+          <Link
+            href="/profile"
+            className="hover:underline hover:text-gray-600 dark:hover:text-gray-300"
+          >
             Profile
-          </button>
-          
+          </Link>
         )}
       </div>
 
       {/* Login/Logout and Mode Toggle */}
       <div className="flex items-center space-x-4">
         {authUser ? (
-          <button
+          <Button
             onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded"
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
           >
             Logout
-          </button>
+          </Button>
         ) : (
-          <Button onClick={handleLogin} className="px-4 py-2 rounded">
+          <Button
+            onClick={handleLogin}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+          >
             Login
           </Button>
         )}
-        <button onClick={toggleMode} className="bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-full">
-          🌓
-        </button>
+        <ModeToggle />
       </div>
     </nav>
   );
