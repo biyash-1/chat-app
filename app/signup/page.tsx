@@ -5,7 +5,7 @@ import { Card, CardHeader, CardFooter } from "../../components/ui/card"; // Upda
 import { Button } from "@/components/ui/button";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
-
+import { useRouter } from "next/navigation";
 interface FormData {
   username: string;
   email: string;
@@ -14,6 +14,8 @@ interface FormData {
 }
 
 const SignupPage: React.FC = () => {
+
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     username: "",
     email: "",
@@ -78,59 +80,88 @@ const SignupPage: React.FC = () => {
     }
   };
 
+  const handleLogin = () => {
+    router.push('/login');
+  };
+
   return (
-    <div className="flex items-center justify-center mx-auto p-20">
-      <Card className="p-4 flex flex-col items-start justify-center gap-4 w-1/4">
-        <CardHeader className="text-3xl font-bold text-center mx-auto">
-          Signup New User
-        </CardHeader>
+<div className="h-screen flex items-center justify-center mx-auto p-20">
+  <Card className="p-4 flex flex-col items-start justify-center gap-6 w-1/4">
+    <CardHeader className="text-2xl font-bold text-center mx-auto">
+     Create an account
+    </CardHeader>
 
-        <Label htmlFor="username">Username:</Label>
-        <Input
-          id="username"
-          name="username"
-          value={formData.username}
-          onChange={handleInputChange}
-          placeholder="Enter your username"
-        />
-
-        <Label htmlFor="email">Email:</Label>
-        <Input
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleInputChange}
-          placeholder="Enter your email"
-        />
-
-        <Label htmlFor="password">Password:</Label>
-        <Input
-          id="password"
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleInputChange}
-          placeholder="Enter your password"
-        />
-
-        <Label htmlFor="image">Upload Image:</Label>
-        <Input
-          id="image"
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-        />
-
-        <CardFooter className="flex flex-col">
-          <div className="flex flex-col justify-between gap-4">
-            <Button disabled={uploading}>Login</Button>
-            <Button onClick={handleSignup} disabled={uploading}>
-              {uploading ? "Uploading..." : "Signup"}
-            </Button>
-          </div>
-        </CardFooter>
-      </Card>
+    <div className="w-full">
+      <Label htmlFor="username" className="mb-1 block">
+        Username:
+      </Label>
+      <Input
+        id="username"
+        name="username"
+        value={formData.username}
+        onChange={handleInputChange}
+        placeholder="Enter your username"
+        className="w-full"
+      />
     </div>
+
+    <div className="w-full">
+      <Label htmlFor="email" className="mb-1 block">
+        Email:
+      </Label>
+      <Input
+        id="email"
+        name="email"
+        value={formData.email}
+        onChange={handleInputChange}
+        placeholder="Enter your email"
+        className="w-full"
+      />
+    </div>
+
+    <div className="w-full">
+      <Label htmlFor="password" className="mb-1 block">
+        Password:
+      </Label>
+      <Input
+        id="password"
+        type="password"
+        name="password"
+        value={formData.password}
+        onChange={handleInputChange}
+        placeholder="Enter your password"
+        className="w-full"
+      />
+    </div>
+
+    <div className="w-full">
+      <Label htmlFor="image" className="mb-1 block">
+        Upload Image:
+      </Label>
+      <Input
+        id="image"
+        type="file"
+        accept="image/*"
+        onChange={handleImageChange}
+        className="w-full"
+      />
+    </div>
+
+    <CardFooter className="flex flex-col w-full">
+      <div className="flex flex-col justify-between gap-2 w-full">
+        
+        <Button className="w-full" onClick={handleSignup} disabled={uploading}>
+          {uploading ? "Uploading..." : "Signup"}
+        </Button>
+        <p className="text-sm mt-2">Already have and account?</p>
+        <Button className="w-full" variant={"outline"} onClick={handleLogin}>
+          Login
+        </Button>
+      </div>
+    </CardFooter>
+  </Card>
+</div>
+
   );
 };
 

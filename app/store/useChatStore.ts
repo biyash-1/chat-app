@@ -1,5 +1,6 @@
+
 import { create } from "zustand";
-import { Socket } from "socket.io-client"; // Ensure you have this installed
+import { Socket } from "socket.io-client";
 import { useAuthStore } from "./useAuthStore";
 
 interface User {
@@ -8,7 +9,6 @@ interface User {
   fullName: string;
   profilePicture?: string;
   isOnline: boolean;
-
 }
 
 interface Message {
@@ -17,12 +17,11 @@ interface Message {
   createdAt: string;
   text?: string;
   image?: string;
-  newMessage: Message;
-  
 }
 
 interface ChatStoreState {
   messages: Message[];
+  
   socket: Socket | null;
   users: User[];
   selectedUser: User | null;
@@ -30,8 +29,9 @@ interface ChatStoreState {
   isMessagesLoading: boolean;
   getUsers: () => Promise<void>;
   getMessages: (userId: string) => Promise<void>;
+  deleteMessage: (messageId:any) => Promise<void>;
   setSelectedUser: (selectedUser: User | null) => void;
-  sendMessage: (messageData: any) => Promise<void>;
+  sendMessage: (messageData: Omit<Message, "_id" | "createdAt">) => Promise<void>;
   subscribeToMessages: () => void;
   unsubscribeFromMessages: () => void;
 }
@@ -43,7 +43,9 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
   selectedUser: null,
   isUserLoading: false,
   isMessagesLoading: false,
-
+  
+    setSelectedUser: (selectedUser) => set({ selectedUser }),
+  
   getUsers: async () => {
     set({ isUserLoading: true });
     try {
@@ -76,112 +78,91 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
     }
   },
 
-  sendMessage: async (messageData: any) => {
-    set({ isMessagesLoading: true });
-    const { selectedUser, messages } = get();
-  
+
+  deleteMessage: async (messageId:any) => { 
+    const {messages} = get();
     try {
-      const response = await fetch(`http://localhost:3001/api/message/send/${selectedUser._id}`, {
-        method: "POST",
+      const response = await fetch(`http://localhost:3001/api/message/delete/${messageId}`, {
+        method: "DELETE",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(messageData),
       });
-  
+      if(!response.ok) {
+        throw new Error("Failed to delete message");
+      }
       const data = await response.json();
-      console.log("data",data);
-      
-      set({messages: [...messages,data]})
-     
+      set({ messages: messages.filter(message => message._id !== messageId) });
     } catch (error) {
-      console.error("Error sending message:", error);
-    
+      console.error(`Failed to delete message ${messageId}:`, error);
     } finally {
       set({ isMessagesLoading: false });
     }
   },
-  // sendMessage: async (messageData: any) => {
-  //   const { selectedUser, messages } = get();
-  //   const { authUser, socket } = useAuthStore.getState();
+  sendMessage: async (messageData) => {
+    const { selectedUser, messages } = get();
   
-  //   if (!selectedUser || !authUser) {
-  //     console.error("No user selected or authUser is not available");
-  //     return;
-  //   }
-  
-  //   const tempMessage = {
-  //     _id: Date.now().toString(),
-  //     sender: authUser.id,
-  //     createdAt: new Date().toISOString(),
-  //     ...messageData,
-  //   };
-  
-  //   set({ messages: [...messages, tempMessage] });
-  
-  //   try {
-  //     const response = await fetch(`http://localhost:3001/api/message/send/${selectedUser._id}`, {
-  //       method: "POST",
-  //       credentials: "include",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(messageData),
-  //     });
-  
-  //     const data = await response.json();
-  //     set({ messages: [...get().messages.filter((msg) => msg._id !== tempMessage._id), data] });
-  
-  //     // Emit the message to the socket server
-  //     if (socket) {
-  //       socket.emit("sendMessage", data);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error sending message:", error);
-  //     set({ messages: get().messages.filter((msg) => msg._id !== tempMessage._id) });
-  //   }
-  // },
-  
-  
-  
-  subscribeToMessages: () => {
-    const { selectedUser } = get();
-    if (!selectedUser) return;
-  
-    const  {socket}  = useAuthStore.getState();
-    if (!socket) {
-      console.error("Socket is not initialized or not connected");
+    // Ensure `messages` is always an array
+    if (!Array.isArray(messages)) {
+      console.error("Messages state is not an array.");
       return;
     }
   
-     // Clear previous listeners to avoid duplicates
-     socket.on("newMessage", (newMessage:any) => {
-      const isMessageSentFromSelectedUser = newMessage.sender === selectedUser._id;
-      if (!isMessageSentFromSelectedUser) return;
-      set({
-        messages: [...get().messages, newMessage],
-      });
-    });
+    if (!selectedUser) {
+      console.error("No selected user.");
+      return;
+    }
+  
+    try {
+      const response = await fetch(
+        `http://localhost:3001/api/message/send/${selectedUser._id}`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(messageData),
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
+  
+      const data = await response.json();
+  
+      // Ensure the response contains the necessary data
+      if (!data || !data._id) {
+        console.error("Invalid message data received from server:", data);
+        return;
+      }
+  
+      // Append the new message to the existing array
+      set({ messages: [...messages, data] });
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
   },
   
+  subscribeToMessages: () => {
+    const { selectedUser } = get();
+    const { socket } = useAuthStore.getState();
+   
+    if (!selectedUser) {
+      console.error("Socket or selected user is not available");
+      return;
+    }
+    if(!socket){
+      console.error("Socket is not available");
+      return;
+    }
 
-  // subscribeToMessages: () => {
-  //   const { selectedUser } = get();
-  //   const { socket, authUser } = useAuthStore.getState();
-  
-  //   if (!socket || !selectedUser || !authUser) return;
-  
-  //   socket.on("newMessage", (newMessage: Message) => {
-  //     const isRelevant =
-  //       newMessage.sender === selectedUser._id || newMessage.sender === authUser.id;
-  
-  //     if (isRelevant) {
-  //       set({ messages: [...get().messages, newMessage] });
-  //     }
-  //   });
-  // },
-  
+    socket?.off("newMessage"); // Clear previous listeners
+    socket?.on("newMessage", (newMessage: Message) => {
+      if (newMessage.sender === selectedUser._id) {
+        set({ messages: [...get().messages, newMessage] });
+      }
+    });
+  },
 
   unsubscribeFromMessages: () => {
     const { socket } = useAuthStore.getState();
@@ -191,6 +172,4 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
       console.error("Socket is not initialized");
     }
   },
-
-  setSelectedUser: (selectedUser: User | null) => set({ selectedUser }),
 }));

@@ -57,7 +57,7 @@ const MessageInput = () => {
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
+              className="w-20 h-20 object-cover rounded-lg border dark:border-zinc-700"
             />
             <button
               onClick={removeImage}
@@ -75,7 +75,7 @@ const MessageInput = () => {
         <div className="flex-1 flex gap-2">
           <input
             type="text"
-            className="w-full input input-bordered rounded-lg input-sm sm:input-md"
+            className="w-full dark:bg-slate-800 bg-slate-300 input input-bordered rounded-lg input-sm sm:input-md"
             placeholder="Type a message..."
             value={text}
             onChange={(e) => setText(e.target.value)}

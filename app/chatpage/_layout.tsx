@@ -1,10 +1,22 @@
-// "use client";
+"use client";
 
-// import WithAuth from "../../lib/withAuth";
-// import { ReactNode } from "react";
+import { ReactNode } from "react";
+import ChatNavbar from "../../components/ChatNavbar"; // Your custom navbar component
 
-// export default function Layout({ children }: { children: ReactNode }) {
-//   const AuthenticatedComponent = WithAuth(() => <>{children}</>);
+interface ChatLayoutProps {
+  children: ReactNode;
+}
 
-//   return <AuthenticatedComponent />;
-// }
+const ChatLayout = ({ children }: ChatLayoutProps) => {
+  return (
+    <div className="h-screen flex flex-col">
+      {/* Custom Navbar */}
+      <ChatNavbar />
+
+      {/* Page Content */}
+      <main className="flex-grow bg-gray-100">{children}</main>
+    </div>
+  );
+};
+
+export default ChatLayout;
